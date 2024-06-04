@@ -1,0 +1,36 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Trang chủ</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f2f2f2;
+        text-align: center;
+        padding: 40px;
+      }
+      h1 {
+        color: #333;
+        text-shadow: 2px 2px 4px #ccc;
+      }
+      a {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #4CAF50;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        margin: 10px;
+      }
+      a:hover {
+        background-color: #45a049;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Chào mừng đến trang chủ! | FoxCode</h1>
+    <a href="{{ url_for('login') }}">Đăng nhập</a>
+    <a href="{{ url_for('register') }}">Đăng ký</a>
+  </body>
+</html>
