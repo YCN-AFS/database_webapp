@@ -56,9 +56,8 @@ c.execute("""CREATE TABLE IF NOT EXISTS player_profiles (
                 bio TEXT,
                 FOREIGN KEY (player_id) REFERENCES players(player_id)
             )""")
-
+#                setting_id INTEGER PRIMARY KEY AUTOINCREMENT,
 c.execute("""CREATE TABLE IF NOT EXISTS player_settings (
-                setting_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 player_id INTEGER NOT NULL,
                 sound_enabled BOOLEAN DEFAULT TRUE,
                 music_enabled BOOLEAN DEFAULT TRUE,
@@ -219,7 +218,7 @@ def search_players():
 
         query = """
             SELECT p.player_id, p.username, p.email, pp.display_name, pp.avatar, pp.bio, ps.sound_enabled, ps.music_enabled, ps.language
-            FROM players p
+            FROM players p 
             LEFT JOIN player_profiles pp ON p.player_id = pp.player_id
             LEFT JOIN player_settings ps ON p.player_id = ps.player_id
             WHERE p.username LIKE ?
@@ -249,9 +248,9 @@ def get_player_sessions(player_id):
         conn = sqlite3.connect('database.db')
         c = conn.cursor()
 
-        query = """
+        query = """ 
             SELECT session_id, session_token, created_at, last_active
-            FROM player_sessions
+            FROM player_sessions 
             WHERE player_id = ?
         """
         c.execute(query, (player_id,))
@@ -269,3 +268,4 @@ def get_player_sessions(player_id):
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
+ 

@@ -1,6 +1,33 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <style>   #menu {
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: none;
+        background-color: #f9f9f9;
+        border: 1px solid #ccc;
+        padding: 10px;
+      }
+  
+      #menu ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+  
+      #menu li {
+        margin-bottom: 5px;
+      }
+  
+      #menu a {
+        display: block;
+        padding: 5px 10px;
+        text-decoration: none;
+        color: #333;
+      }</style>
+
     <title>Player Management</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
@@ -47,10 +74,9 @@
         </div>
     </div>
 
-    <div class="context-menu" id="playerContextMenu">
-        <a href="#" id="editPlayerLink">Edit</a>
-        <a href="#" id="deletePlayerLink">Delete</a>
-    </div>
+
+
+
 
     <div class="modal" id="sessionModal" tabindex="-1">
         <div class="modal-dialog">
@@ -75,268 +101,130 @@
             </div>
         </div>
     </div>
-
+    <div id="menu">
+        <ul>
+          <li><a href="#">Sửa</a></li>
+          <li><a href="#">Xóa</a></li>
+          <li><a href="#">Dán</a></li>
+          <li><hr></li>
+          <li><a href="#">Xem thuộc tính</a></li>
+        </ul>
+      </div>
     <script>
-        let activeContextMenu = null;
-
-function showContextMenu(event) {
-    event.preventDefault();
-
-    const playerRow = event.currentTarget;
-    const playerId = playerRow.dataset.playerId;
-
-    const contextMenu = document.getElementById('playerContextMenu');
-    contextMenu.style.display = 'block';
-    contextMenu.style.left = `${event.pageX}px`;
-    contextMenu.style.top = `${event.pageY}px`;
-
-    activeContextMenu = { playerId, contextMenu };
-
-    document.getElementById('editPlayerLink').addEventListener('click', () => editPlayer(playerId), { once: true });
-    document.getElementById('deletePlayerLink').addEventListener('click', () => deletePlayer(playerId), { once: true });
-}
-
-function hideContextMenu() {
-    if (activeContextMenu) {
-        activeContextMenu.contextMenu.style.display = 'none';
-        activeContextMenu = null;
-    }
-}
-
-function editPlayer(playerId) {
-    // Mã để sửa thông tin người chơi với playerId tương ứng
-    console.log(`Editing player with ID: ${playerId}`);
-    hideContextMenu();
-}
-
-function deletePlayer(playerId) {
-    if (confirm(`Are you sure you want to delete player with ID: ${playerId}?`)) {
-        fetch(`/players/${playerId}`, { method: 'DELETE' })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message);
-                loadPlayerList();
-            })
-            .catch(error => {
-                alert('Error deleting player');
-                console.error('Error:', error);
-            });
-    }
-    hideContextMenu();
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    loadPlayerList();
-    document.addEventListener('click', hideContextMenu);
-    document.addEventListener('contextmenu', hideContextMenu);
-});
-
-function loadPlayerList() {
-    fetch('/players')
-        .then(response => response.json())
-        .then(data => {
-            displayPlayers(data);
-        })
-        .catch(error => {
-            alert('Error loading player list');
-            console.error('Error:', error);
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPlayerList();
         });
-}
 
-function searchPlayers() {
-    const username = document.getElementById('searchUsername').value;
-    fetch(`/players/search?username=${encodeURIComponent(username)}`)
-        .then(response => response.json())
-        .then(data => {
-            displayPlayers(data);
-        })
-        .catch(error => {
-            alert('Error searching players');
-            console.error('Error:', error);
-        });
-}
+        function loadPlayerList() {
+            fetch('/players')
+                .then(response => response.json())
+                .then(data => {
+                    displayPlayers(data);
+                })
+                .catch(error => {
+                    alert('Error loading player list');
+                    console.error('Error:', error);
+                });
+        }
 
-function displayPlayers(data) {
-    const playerList = document.getElementById('playerList');
-    playerList.innerHTML = '';
+        function searchPlayers() {
+            const username = document.getElementById('searchUsername').value;
+            fetch(`/players/search?username=${encodeURIComponent(username)}`)
+                .then(response => response.json())
+                .then(data => {
+                    displayPlayers(data);
+                })
+                .catch(error => {
+                    alert('Error searching players');
+                    console.error('Error:', error);
+                });
+        }
 
-    data.forEach(player => {
-        const row = document.createElement('tr');
-        row.dataset.playerId = player.player_id;
-        row.addEventListener('click', () => showPlayerSessions(player.player_id));
-        row.addEventListener('contextmenu', showContextMenu);
+        function displayPlayers(data) {
+            const playerList = document.getElementById('playerList');
+            playerList.innerHTML = '';
 
-        row.innerHTML = `
-            <td>${player.player_id}</td>
-            <td>${player.username}</td>
-            <td>${player.email}</td>
-            <td>${player.display_name}</td>
-            <td>${player.avatar}</td>
-            <td>${player.bio}</td>
-            <td>${player.sound_enabled}</td>
-            <td>${player.music_enabled}</td>
-            <td>${player.language}</td>
-        `;
-        playerList.appendChild(row);
-    });
-}
-
-function showPlayerSessions(playerId) {
-    fetch(`/players/${playerId}/sessions`)
-        .then(response => response.json())
-        .then(data => {
-            const sessionList = document.getElementById('sessionList');
-            sessionList.innerHTML = '';
-
-            data.forEach(session => {
+            data.forEach(player => {
                 const row = document.createElement('tr');
+                row.dataset.playerId = player.player_id;
+                row.addEventListener('click', () => showPlayerSessions(player.player_id));
+
                 row.innerHTML = `
-                    <td>${session.session_id}</td>
-                    <td>${session.session_token}</td>
-                    <td>${session.created_at}</td>
-                    <td>${session.last_active}</td>
+                    <td>${player.player_id}</td>
+                    <td>${player.username}</td>
+                    <td>${player.email}</td>
+                    <td>${player.display_name}</td>
+                    <td>${player.avatar}</td>
+                    <td>${player.bio}</td>
+                    <td>${player.sound_enabled}</td>
+                    <td>${player.music_enabled}</td>
+                    <td>${player.language}</td>
                 `;
-                sessionList.appendChild(row);
+                playerList.appendChild(row);
             });
+        }
 
-            const modal = new bootstrap.Modal(document.getElementById('sessionModal'));
-            modal.show();
-        })
-        .catch(error => {
-            alert('Error loading player sessions');
-            console.error('Error:', error);
-        });
-}
-// let activeContextMenu = null;
+        function showPlayerSessions(playerId) {
+            fetch(`/players/${playerId}/sessions`)
+                .then(response => response.json())
+                .then(data => {
+                    const sessionList = document.getElementById('sessionList');
+                    sessionList.innerHTML = '';
 
-// function showContextMenu(event) {
-//     event.preventDefault();
+                    data.forEach(session => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${session.session_id}</td>
+                            <td>${session.session_token}</td>
+                            <td>${session.created_at}</td>
+                            <td>${session.last_active}</td>
+                        `;
+                        sessionList.appendChild(row);
+                    });
 
-//     const playerRow = event.currentTarget;
-//     const playerId = playerRow.dataset.playerId;
+                    const modal = new bootstrap.Modal(document.getElementById('sessionModal'));
+                    modal.show();
+                })
+                .catch(error => {
+                    alert('Error loading player sessions');
+                    console.error('Error:', error);
+                });
+        }
 
-//     const contextMenu = document.getElementById('playerContextMenu');
-//     contextMenu.style.display = 'block';
-//     contextMenu.style.left = `${event.pageX}px`;
-//     contextMenu.style.top = `${event.pageY}px`;
+        function deletePlayer() {
+            const playerId = document.getElementById('playerId').value;
+            if (playerId) {
+                fetch(`/players/${playerId}`, { method: 'DELETE' })
+                    .then(response => response.json())
+                    .then(data => {
+                        alert(data.message);
+                        loadPlayerList();
+                    })
+                    .catch(error => {
+                        alert('Error deleting player');
+                        console.error('Error:', error);
+                    });
+            } else {
+                alert('Please enter a player ID');
+            }
+        }
 
-//     activeContextMenu = { playerId, contextMenu };
+        
+    const element = document.getElementById('playerList');
+    const menu = document.getElementById('menu');
 
-//     document.getElementById('editPlayerLink').addEventListener('click', () => editPlayer(playerId), { once: true });
-//     document.getElementById('deletePlayerLink').addEventListener('click', () => deletePlayer(playerId), { once: true });
-// }
+    element.addEventListener('contextmenu', function(event) {
+      event.preventDefault();
 
-// function hideContextMenu(event) {
-//     if (activeContextMenu && !activeContextMenu.contextMenu.contains(event.target)) {
-//         activeContextMenu.contextMenu.style.display = 'none';
-//         activeContextMenu = null;
-//     }
-// }
+      menu.style.top = event.clientY + 'px';
+      menu.style.left = event.clientX + 'px';
+      menu.style.display = 'block';
+    });
 
-// function editPlayer(playerId) {
-//     // Mã để sửa thông tin người chơi với playerId tương ứng
-//     console.log(`Editing player with ID: ${playerId}`);
-//     hideContextMenu();
-// }
-
-// function deletePlayer(playerId) {
-//     if (confirm(`Are you sure you want to delete player with ID: ${playerId}?`)) {
-//         fetch(`/players/${playerId}`, { method: 'DELETE' })
-//             .then(response => response.json())
-//             .then(data => {
-//                 alert(data.message);
-//                 loadPlayerList();
-//             })
-//             .catch(error => {
-//                 alert('Error deleting player');
-//                 console.error('Error:', error);
-//             });
-//     }
-//     hideContextMenu();
-// }
-
-// document.addEventListener('DOMContentLoaded', function() {
-//     loadPlayerList();
-//     document.addEventListener('click', hideContextMenu);
-//     document.addEventListener('contextmenu', hideContextMenu);
-// });
-
-// function loadPlayerList() {
-//     fetch('/players')
-//         .then(response => response.json())
-//         .then(data => {
-//             displayPlayers(data);
-//         })
-//         .catch(error => {
-//             alert('Error loading player list');
-//             console.error('Error:', error);
-//         });
-// }
-
-// function searchPlayers() {
-//     const username = document.getElementById('searchUsername').value;
-//     fetch(`/players/search?username=${encodeURIComponent(username)}`)
-//         .then(response => response.json())
-//         .then(data => {
-//             displayPlayers(data);
-//         })
-//         .catch(error => {
-//             alert('Error searching players');
-//             console.error('Error:', error);
-//         });
-// }
-
-// function displayPlayers(data) {
-//     const playerList = document.getElementById('playerList');
-//     playerList.innerHTML = '';
-
-//     data.forEach(player => {
-//         const row = document.createElement('tr');
-//         row.dataset.playerId = player.player_id;
-//         row.addEventListener('click', () => showPlayerSessions(player.player_id));
-//         row.addEventListener('contextmenu', showContextMenu);
-
-//         row.innerHTML = `
-//             <td>${player.player_id}</td>
-//             <td>${player.username}</td>
-//             <td>${player.email}</td>
-//             <td>${player.display_name}</td>
-//             <td>${player.avatar}</td>
-//             <td>${player.bio}</td>
-//             <td>${player.sound_enabled}</td>
-//             <td>${player.music_enabled}</td>
-//             <td>${player.language}</td>
-//         `;
-//         playerList.appendChild(row);
-//     });
-// }
-
-// function showPlayerSessions(playerId) {
-//     fetch(`/players/${playerId}/sessions`)
-//         .then(response => response.json())
-//         .then(data => {
-//             const sessionList = document.getElementById('sessionList');
-//             sessionList.innerHTML = '';
-
-//             data.forEach(session => {
-//                 const row = document.createElement('tr');
-//                 row.innerHTML = `
-//                     <td>${session.session_id}</td>
-//                     <td>${session.session_token}</td>
-//                     <td>${session.created_at}</td>
-//                     <td>${session.last_active}</td>
-//                 `;
-//                 sessionList.appendChild(row);
-//             });
-
-//             const modal = new bootstrap.Modal(document.getElementById('sessionModal'));
-//             modal.show();
-//         })
-//         .catch(error => {
-//             alert('Error loading player sessions');
-//             console.error('Error:', error);
-//         });
-// }
+    menu.addEventListener('click', function(event) {
+      event.stopPropagation();
+      alert('Bạn đã nhấp vào ' + event.target.textContent);
+    });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
